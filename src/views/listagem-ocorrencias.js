@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 
 import Stack from '@mui/material/Stack';
 import { IconButton } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
+import BlockIcon from '@mui/icons-material/Block';
 import EditIcon from '@mui/icons-material/Edit';
 
 import axios from 'axios';
@@ -30,16 +30,19 @@ function ListagemOcorrencias() {
   };
 
   const [dados, setDados] = React.useState(null);
+  const [tiposPorBO, setTiposPorBO] = React.useState({});
 
-  async function excluir(id) {
+  // O json-server não apaga em cascata: em vez de excluir, inativa o boletim.
+  async function inativar(id) {
+    if (!window.confirm('Inativar esta ocorrência?')) return;
     await axios
-      .delete(`${baseURL}/${id}`)
+      .patch(`${baseURL}/${id}`, { ativo: false })
       .then(() => {
-        mensagemSucesso('Ocorrência excluído com sucesso!');
-        setDados(dados.filter((dado) => dado.id !== id));
+        mensagemSucesso('Ocorrência inativada com sucesso!');
+        setDados(dados.map((dado) => (dado.id === id ? { ...dado, ativo: false } : dado)));
       })
       .catch(() => {
-        mensagemErro('Erro ao excluir o registro');
+        mensagemErro('Erro ao inativar o registro');
       });
   }
 
@@ -52,6 +55,24 @@ function ListagemOcorrencias() {
         mensagemErro('Erro ao carregar a listagem');
         setDados([]);
       });
+
+    Promise.all([
+      axios.get(`${BASE_URL}/classificacoesBO`),
+      axios.get(`${BASE_URL}/tiposCrime`),
+    ])
+      .then(([cls, tipos]) => {
+        const nomes = {};
+        tipos.data.forEach((t) => {
+          nomes[String(t.id)] = t.nomeTipo;
+        });
+        const mapa = {};
+        cls.data.forEach((c) => {
+          const chave = String(c.idBoletim);
+          mapa[chave] = [...(mapa[chave] || []), nomes[String(c.idTipoCrime)]].filter(Boolean);
+        });
+        setTiposPorBO(mapa);
+      })
+      .catch(() => {});
   }, []);
 
   if (!dados) return <p>Carregando...</p>;
@@ -76,36 +97,40 @@ function ListagemOcorrencias() {
                     <th scope='col'>Data</th>
                     <th scope='col'>Hora</th>
                     <th scope='col'>Local</th>
+                    <th scope='col'>Tipo(s)</th>
                     <th scope='col'>Status</th>
                     <th scope='col'>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {dados.map((dado) => (
-                    <tr key={dado.id}>
-                      <td>{dado.numeroProtocolo ?? '-'}</td>
-                      <td>{dado.dataOcorrencia ?? '-'}</td>
-                      <td>{dado.horaOcorrencia ?? '-'}</td>
-                      <td>{dado.local ?? '-'}</td>
-                      <td>{dado.statusBO ?? '-'}</td>
-                      <td>
-                        <Stack spacing={1} padding={0} direction='row'>
-                          <IconButton
-                            aria-label='edit'
-                            onClick={() => editar(dado.id)}
-                          >
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton
-                            aria-label='delete'
-                            onClick={() => excluir(dado.id)}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Stack>
-                      </td>
-                    </tr>
-                  ))}
+                  {dados
+                    .filter((dado) => dado.ativo !== false)
+                    .map((dado) => (
+                      <tr key={dado.id}>
+                        <td>{dado.numeroProtocolo ?? '-'}</td>
+                        <td>{dado.dataOcorrencia ?? '-'}</td>
+                        <td>{dado.horaOcorrencia ?? '-'}</td>
+                        <td>{dado.local ?? '-'}</td>
+                        <td>{(tiposPorBO[String(dado.id)] || []).join(', ') || '-'}</td>
+                        <td>{dado.statusBO ?? '-'}</td>
+                        <td>
+                          <Stack spacing={1} padding={0} direction='row'>
+                            <IconButton
+                              aria-label='edit'
+                              onClick={() => editar(dado.id)}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton
+                              aria-label='inativar'
+                              onClick={() => inativar(dado.id)}
+                            >
+                              <BlockIcon />
+                            </IconButton>
+                          </Stack>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
