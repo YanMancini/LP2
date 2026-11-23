@@ -51,7 +51,7 @@ export function CamposForm({ campos, row, onChange, refs = {}, prefix }) {
       } else if (c.tipo === 'checkbox') {
         input = <input type='checkbox' id={id} className='form-check-input' checked={!!v} onChange={(e) => onChange(c.nome, e.target.checked)} />;
       } else {
-        input = <input type={c.tipo} id={id} className='form-control' value={v} onChange={(e) => onChange(c.nome, e.target.value)} />;
+        input = <input type={c.tipo === 'tags' ? 'text' : c.tipo} id={id} className='form-control' value={Array.isArray(v) ? v.join(', ') : v} onChange={(e) => onChange(c.nome, e.target.value)} />;
       }
       return (
         <FormGroup key={c.nome} label={`${c.label}:${c.obrigatorio ? ' *' : ''}`} htmlFor={id}>

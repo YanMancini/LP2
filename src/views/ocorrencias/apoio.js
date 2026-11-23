@@ -53,6 +53,7 @@ function montarPayload(spec, row, ctx) {
     if (c.tipo === 'ref') p[c.nome] = v ? ctx.keyMap[v] ?? null : null;
     else if (c.tipo === 'number') p[c.nome] = v === '' || v == null ? null : Number(v);
     else if (c.tipo === 'checkbox') p[c.nome] = !!v;
+    else if (c.tipo === 'tags') p[c.nome] = Array.isArray(v) ? v : String(v ?? '').split(',').map((s) => s.trim()).filter(Boolean);
     else p[c.nome] = v ?? '';
   });
   if (!spec.raiz) {
@@ -105,9 +106,7 @@ export async function desfazer(ctx) {
 export async function carregarTabela(spec, idBoletim, carregado) {
   const params = spec.pai ? { [spec.fkPai]: carregado[spec.pai]?.[0]?.id } : { idBoletim };
   if (spec.pai && params[spec.fkPai] === undefined) return [];
-  const { data } = await axios
-    .get(`${BASE_URL}/${spec.tabela}`, { params })
-    .catch(() => ({ data: [] }));
+  const { data } = await axios.get(`${BASE_URL}/${spec.tabela}`, { params });
   return data.map((d) => {
     const r = { ...d, _k: `e${d.id}` };
     spec.campos.forEach((c) => {
