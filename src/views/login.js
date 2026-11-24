@@ -41,7 +41,7 @@ function Login() {
       sessionStorage.setItem('usuario', JSON.stringify(semSenha));
       mensagemSucesso(`Bem-vindo(a), ${usuario.nomeCompleto}!`);
       // Recarrega a página para o menu (navbar) aparecer já com o usuário logado.
-      window.location.href = '/listagem-ocorrencias';
+      window.location.href = '/listagem-relatorios';
     } catch (error) {
       console.error(error);
       mensagemErro('Erro ao realizar o login');
