@@ -17,7 +17,7 @@ export const DOMINIOS = {
     titulo: 'Papéis na ocorrência',
     padroes: ['Vítima', 'Suspeito', 'Testemunha', 'Comunicante', 'Desaparecido', 'Condutor', 'Proprietário'],
   },
-  'tipos-agressao': {
+ /* 'tipos-agressao': {
     tabela: 'tiposAgressao',
     titulo: 'Tipos de agressão',
     padroes: ['Lesão corporal', 'Vias de fato'],
@@ -67,5 +67,5 @@ export const DOMINIOS = {
   'marcas-veiculo': { tabela: 'marcasVeiculo', titulo: 'Marcas de veículo' },
   'cores-veiculo': { tabela: 'coresVeiculo', titulo: 'Cores de veículo' },
   'tipos-documento': { tabela: 'tiposDocumento', titulo: 'Tipos de documento/objeto' },
-  'orgaos-emissores': { tabela: 'orgaosEmissores', titulo: 'Órgãos emissores' },
+  'orgaos-emissores': { tabela: 'orgaosEmissores', titulo: 'Órgãos emissores' },*/
 };

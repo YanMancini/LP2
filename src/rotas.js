@@ -22,7 +22,7 @@ import CadastroPlantao from './views/cadastro-plantoes';
 
 import ListagemRelatorios from './views/listagem-relatorios';
 
-import CadastrosAuxiliares from './views/cadastros-auxiliares';
+import CadastrosAuxiliares from './views/cadastros';
 import CadastroDominio from './views/cadastro-dominio';
 
 
@@ -61,7 +61,7 @@ function Rotas() {
 
         <Route path='/listagem-relatorios' element={<Privada><ListagemRelatorios /></Privada>} />
 
-        <Route path='/cadastros-auxiliares' element={<Privada><CadastrosAuxiliares /></Privada>} />
+        <Route path='/cadastros' element={<Privada><CadastrosAuxiliares /></Privada>} />
         <Route path='/cadastros/:slug' element={<Privada><CadastroDominio /></Privada>} />
 
 
