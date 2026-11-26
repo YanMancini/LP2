@@ -6,6 +6,9 @@ import { mensagemSucesso, mensagemErro } from '../components/toastr';
 
 import '../custom.css';
 
+import usePesquisaPaginacao from '../hooks/usePesquisaPaginacao';
+import { BarraPesquisa, Paginacao } from '../components/pesquisa-paginacao';
+
 import { useNavigate } from 'react-router-dom';
 
 import Stack from '@mui/material/Stack';
@@ -17,6 +20,8 @@ import axios from 'axios';
 import { BASE_URL } from '../config/axios';
 
 const baseURL = `${BASE_URL}/viaturas`;
+
+const CAMPOS = ['placa', 'modelo', 'ano', 'unidadeLotacao', 'status'];
 
 function ListagemViaturas() {
   const navigate = useNavigate();
@@ -30,6 +35,7 @@ function ListagemViaturas() {
   };
 
   const [dados, setDados] = React.useState(null);
+  const lista = usePesquisaPaginacao(dados, CAMPOS);
 
   async function excluir(id) {
     await axios
@@ -62,13 +68,12 @@ function ListagemViaturas() {
         <div className='row'>
           <div className='col-lg-12'>
             <div className='bs-component'>
-              <button
-                type='button'
-                className='btn btn-warning'
-                onClick={() => cadastrar()}
-              >
-                Nova Viatura
-              </button>
+              <div className='d-flex justify-content-between align-items-center flex-wrap gap-2'>
+                <button type='button' className='btn btn-warning' onClick={() => cadastrar()}>
+                  Nova Viatura
+                </button>
+                <BarraPesquisa lista={lista} />
+              </div>
               <table className='table table-hover'>
                 <thead>
                   <tr>
@@ -81,7 +86,7 @@ function ListagemViaturas() {
                   </tr>
                 </thead>
                 <tbody>
-                  {dados.map((dado) => (
+                  {lista.itens.map((dado) => (
                     <tr key={dado.id}>
                       <td>{dado.placa ?? '-'}</td>
                       <td>{dado.modelo ?? '-'}</td>
@@ -106,8 +111,14 @@ function ListagemViaturas() {
                       </td>
                     </tr>
                   ))}
+                  {lista.total === 0 && (
+                    <tr>
+                      <td colSpan={6}>Nenhum registro encontrado.</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
+              <Paginacao lista={lista} />
             </div>
           </div>
         </div>

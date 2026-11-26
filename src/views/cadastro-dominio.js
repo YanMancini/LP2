@@ -8,6 +8,10 @@ import { BASE_URL } from '../config/axios';
 import '../custom.css';
 
 import { DOMINIOS } from './dominios';
+import usePesquisaPaginacao from '../hooks/usePesquisaPaginacao';
+import { BarraPesquisa, Paginacao } from '../components/pesquisa-paginacao';
+
+const CAMPOS_BUSCA = ['nome', 'situacao'];
 
 // Tela única de cadastro/listagem para qualquer tabela auxiliar de dominios.js.
 function CadastroDominio() {
@@ -41,7 +45,19 @@ function CadastroDominio() {
     carregar();
   }, [carregar]);
 
-  if (!dom) return <Navigate to='/cadastros' replace />;
+  // O nome fica em "nome" (ou "nomeTipo" em tiposCrime); a situação vira texto pesquisável.
+  const linhas = React.useMemo(
+    () =>
+      itens.map((i) => ({
+        ...i,
+        nome: i[campo],
+        situacao: i.ativo === false ? 'Inativo' : 'Ativo',
+      })),
+    [itens, campo]
+  );
+  const lista = usePesquisaPaginacao(linhas, CAMPOS_BUSCA);
+
+  if (!dom) return <Navigate to='/cadastros-auxiliares' replace />;
 
   async function salvar(e) {
     e.preventDefault();
@@ -142,6 +158,10 @@ function CadastroDominio() {
           </div>
         )}
 
+        <div className='mt-3'>
+          <BarraPesquisa lista={lista} />
+        </div>
+
         <table className='table table-hover'>
           <thead>
             <tr>
@@ -159,8 +179,12 @@ function CadastroDominio() {
               <tr>
                 <td colSpan={3}>Nenhum registro cadastrado.</td>
               </tr>
+            ) : lista.total === 0 ? (
+              <tr>
+                <td colSpan={3}>Nenhum registro encontrado.</td>
+              </tr>
             ) : (
-              itens.map((i) => (
+              lista.itens.map((i) => (
                 <tr key={i.id}>
                   <td>{i[campo]}</td>
                   <td>{i.ativo === false ? 'Inativo' : 'Ativo'}</td>
@@ -188,8 +212,9 @@ function CadastroDominio() {
             )}
           </tbody>
         </table>
+        <Paginacao lista={lista} />
 
-        <Link to='/cadastros'>&larr; Voltar aos cadastros</Link>
+        <Link to='/cadastros-auxiliares'>&larr; Voltar aos cadastros</Link>
       </Card>
     </div>
   );

@@ -6,6 +6,9 @@ import { mensagemSucesso, mensagemErro } from '../components/toastr';
 
 import '../custom.css';
 
+import usePesquisaPaginacao from '../hooks/usePesquisaPaginacao';
+import { BarraPesquisa, Paginacao } from '../components/pesquisa-paginacao';
+
 import { useNavigate } from 'react-router-dom';
 
 import Stack from '@mui/material/Stack';
@@ -17,6 +20,8 @@ import axios from 'axios';
 import { BASE_URL } from '../config/axios';
 
 const baseURL = `${BASE_URL}/boletins`;
+
+const CAMPOS = ['numeroProtocolo', 'dataOcorrencia', 'horaOcorrencia', 'local', 'tipos', 'statusBO'];
 
 function ListagemOcorrencias() {
   const navigate = useNavigate();
@@ -31,6 +36,16 @@ function ListagemOcorrencias() {
 
   const [dados, setDados] = React.useState(null);
   const [tiposPorBO, setTiposPorBO] = React.useState({});
+
+  // Só ocorrências ativas; "tipos" vira texto para entrar na pesquisa.
+  const linhas = React.useMemo(
+    () =>
+      (dados || [])
+        .filter((dado) => dado.ativo !== false)
+        .map((dado) => ({ ...dado, tipos: (tiposPorBO[String(dado.id)] || []).join(', ') })),
+    [dados, tiposPorBO]
+  );
+  const lista = usePesquisaPaginacao(linhas, CAMPOS);
 
   // O json-server não apaga em cascata: em vez de excluir, inativa o boletim.
   async function inativar(id) {
@@ -83,13 +98,12 @@ function ListagemOcorrencias() {
         <div className='row'>
           <div className='col-lg-12'>
             <div className='bs-component'>
-              <button
-                type='button'
-                className='btn btn-warning'
-                onClick={() => cadastrar()}
-              >
-                Nova Ocorrência
-              </button>
+              <div className='d-flex justify-content-between align-items-center flex-wrap gap-2'>
+                <button type='button' className='btn btn-warning' onClick={() => cadastrar()}>
+                  Nova Ocorrência
+                </button>
+                <BarraPesquisa lista={lista} />
+              </div>
               <table className='table table-hover'>
                 <thead>
                   <tr>
@@ -103,15 +117,13 @@ function ListagemOcorrencias() {
                   </tr>
                 </thead>
                 <tbody>
-                  {dados
-                    .filter((dado) => dado.ativo !== false)
-                    .map((dado) => (
+                  {lista.itens.map((dado) => (
                       <tr key={dado.id}>
                         <td>{dado.numeroProtocolo ?? '-'}</td>
                         <td>{dado.dataOcorrencia ?? '-'}</td>
                         <td>{dado.horaOcorrencia ?? '-'}</td>
                         <td>{dado.local ?? '-'}</td>
-                        <td>{(tiposPorBO[String(dado.id)] || []).join(', ') || '-'}</td>
+                        <td>{dado.tipos || '-'}</td>
                         <td>{dado.statusBO ?? '-'}</td>
                         <td>
                           <Stack spacing={1} padding={0} direction='row'>
@@ -131,8 +143,14 @@ function ListagemOcorrencias() {
                         </td>
                       </tr>
                     ))}
+                  {lista.total === 0 && (
+                    <tr>
+                      <td colSpan={7}>Nenhuma ocorrência encontrada.</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
+              <Paginacao lista={lista} />
             </div>
           </div>
         </div>

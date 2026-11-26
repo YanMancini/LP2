@@ -6,6 +6,9 @@ import { mensagemSucesso, mensagemErro } from '../components/toastr';
 
 import '../custom.css';
 
+import usePesquisaPaginacao from '../hooks/usePesquisaPaginacao';
+import { BarraPesquisa, Paginacao } from '../components/pesquisa-paginacao';
+
 import { useNavigate } from 'react-router-dom';
 
 import Stack from '@mui/material/Stack';
@@ -17,6 +20,8 @@ import axios from 'axios';
 import { BASE_URL } from '../config/axios';
 
 const baseURL = `${BASE_URL}/servidores`;
+
+const CAMPOS = ['matriculaFuncional', 'nomeCompleto', 'cargo', 'status'];
 
 function ListagemServidores() {
   const navigate = useNavigate();
@@ -30,6 +35,7 @@ function ListagemServidores() {
   };
 
   const [dados, setDados] = React.useState(null);
+  const lista = usePesquisaPaginacao(dados, CAMPOS);
 
   async function excluir(id) {
     await axios
@@ -62,13 +68,12 @@ function ListagemServidores() {
         <div className='row'>
           <div className='col-lg-12'>
             <div className='bs-component'>
-              <button
-                type='button'
-                className='btn btn-warning'
-                onClick={() => cadastrar()}
-              >
-                Novo Servidor
-              </button>
+              <div className='d-flex justify-content-between align-items-center flex-wrap gap-2'>
+                <button type='button' className='btn btn-warning' onClick={() => cadastrar()}>
+                  Novo Servidor
+                </button>
+                <BarraPesquisa lista={lista} />
+              </div>
               <table className='table table-hover'>
                 <thead>
                   <tr>
@@ -80,7 +85,7 @@ function ListagemServidores() {
                   </tr>
                 </thead>
                 <tbody>
-                  {dados.map((dado) => (
+                  {lista.itens.map((dado) => (
                     <tr key={dado.id}>
                       <td>{dado.matriculaFuncional ?? '-'}</td>
                       <td>{dado.nomeCompleto ?? '-'}</td>
@@ -104,8 +109,14 @@ function ListagemServidores() {
                       </td>
                     </tr>
                   ))}
+                  {lista.total === 0 && (
+                    <tr>
+                      <td colSpan={5}>Nenhum registro encontrado.</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
+              <Paginacao lista={lista} />
             </div>
           </div>
         </div>

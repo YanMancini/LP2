@@ -6,6 +6,9 @@ import { mensagemSucesso, mensagemErro } from '../components/toastr';
 
 import '../custom.css';
 
+import usePesquisaPaginacao from '../hooks/usePesquisaPaginacao';
+import { BarraPesquisa, Paginacao } from '../components/pesquisa-paginacao';
+
 import { useNavigate } from 'react-router-dom';
 
 import Stack from '@mui/material/Stack';
@@ -17,6 +20,8 @@ import axios from 'axios';
 import { BASE_URL } from '../config/axios';
 
 const baseURL = `${BASE_URL}/escalas`;
+
+const CAMPOS = ['idServidor', 'dataPlantao', 'horaInicio', 'horaFim', 'tipoPlantao'];
 
 function ListagemPlantoes() {
   const navigate = useNavigate();
@@ -30,6 +35,7 @@ function ListagemPlantoes() {
   };
 
   const [dados, setDados] = React.useState(null);
+  const lista = usePesquisaPaginacao(dados, CAMPOS);
 
   async function excluir(id) {
     await axios
@@ -62,13 +68,12 @@ function ListagemPlantoes() {
         <div className='row'>
           <div className='col-lg-12'>
             <div className='bs-component'>
-              <button
-                type='button'
-                className='btn btn-warning'
-                onClick={() => cadastrar()}
-              >
-                Novo Plantão
-              </button>
+              <div className='d-flex justify-content-between align-items-center flex-wrap gap-2'>
+                <button type='button' className='btn btn-warning' onClick={() => cadastrar()}>
+                  Novo Plantão
+                </button>
+                <BarraPesquisa lista={lista} />
+              </div>
               <table className='table table-hover'>
                 <thead>
                   <tr>
@@ -81,7 +86,7 @@ function ListagemPlantoes() {
                   </tr>
                 </thead>
                 <tbody>
-                  {dados.map((dado) => (
+                  {lista.itens.map((dado) => (
                     <tr key={dado.id}>
                       <td>{dado.idServidor ?? '-'}</td>
                       <td>{dado.dataPlantao ?? '-'}</td>
@@ -106,8 +111,14 @@ function ListagemPlantoes() {
                       </td>
                     </tr>
                   ))}
+                  {lista.total === 0 && (
+                    <tr>
+                      <td colSpan={6}>Nenhum registro encontrado.</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
+              <Paginacao lista={lista} />
             </div>
           </div>
         </div>
