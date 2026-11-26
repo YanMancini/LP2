@@ -1,0 +1,87 @@
+/* Barra de pesquisa e paginação das listagens (tema SDP: azul-marinho + dourado) */
+
+.barra-pesquisa {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+}
+
+.barra-pesquisa .form-control {
+  padding-left: 2.4rem;
+  padding-right: 2.2rem;
+}
+
+.barra-pesquisa-icone {
+  position: absolute;
+  left: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px !important;
+  color: var(--sdp-muted);
+  pointer-events: none;
+}
+
+.barra-pesquisa-limpar {
+  position: absolute;
+  right: 0.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  padding: 0.2rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--sdp-muted);
+}
+
+.barra-pesquisa-limpar:hover {
+  background: var(--sdp-gold-soft);
+  color: var(--sdp-navy-800);
+}
+
+.paginacao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--sdp-muted);
+}
+
+.paginacao-tamanho {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: 1rem;
+}
+
+.paginacao-tamanho .form-select {
+  width: auto;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+}
+
+.pagination .page-link {
+  color: var(--sdp-navy-700);
+  border-color: var(--sdp-border);
+  cursor: pointer;
+}
+
+.pagination .page-link:hover {
+  background: var(--sdp-gold-soft);
+  color: var(--sdp-navy-900);
+}
+
+.pagination .page-item.active .page-link {
+  background: var(--sdp-navy-700);
+  border-color: var(--sdp-navy-700);
+  color: #fff;
+}
+
+.pagination .page-item.disabled .page-link {
+  color: var(--sdp-muted);
+  background: #fff;
+  cursor: default;
+}
